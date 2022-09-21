@@ -62,7 +62,7 @@ const App = () => {
             <bufferAttribute attach={"attributes-position"} {...points} />
           </bufferGeometry>
           <pointsMaterial
-            size={0.02}
+            size={0.15}
             color={0xffffff}
           />
         </points>
