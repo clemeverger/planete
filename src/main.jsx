@@ -20,7 +20,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Suspense fallback={null}>
           <App></App>
         </Suspense>
-        <OrbitControls />
       </Canvas>
     </>
   </React.StrictMode>
