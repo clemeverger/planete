@@ -30,8 +30,6 @@ const App = () => {
   const ruby = useTexture('planet-ruby.png');
   const vuejs = useTexture('planet-vuejs.png');
 
-  const tab = [c, css, html, js, php, python, ruby, vuejs]
-
   const groupRef = useRef();
 
   const points = useMemo(() => {
@@ -74,9 +72,17 @@ const App = () => {
 export default App
 
 const Planete = ({ texture, position }) => {
+
+  const planet = useRef();
+  const atmosphere = useRef();
+  useFrame(() => {
+    planet.current.rotation.y += 0.0025;
+    planet.current.rotation.x += 0.0025;
+    planet.current.rotation.z += 0.0025;
+  })
   return (
     <>
-      <mesh position={position}>
+      <mesh ref={planet} position={position}>
         <sphereGeometry />
         <shaderMaterial
           vertexShader={vertexShader}
@@ -88,7 +94,7 @@ const Planete = ({ texture, position }) => {
           }}
         />
       </mesh>
-      <mesh position={position} scale={[1.2, 1.2, 1.2]}>
+      <mesh ref={atmosphere} position={position} scale={[1.2, 1.2, 1.2]}>
         <sphereGeometry />
         <shaderMaterial
           vertexShader={atmosphereVertex}
