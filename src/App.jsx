@@ -10,7 +10,6 @@ import { AdditiveBlending } from 'three';
 import { BackSide } from 'three';
 import { useFrame, extend } from '@react-three/fiber';
 import { BufferAttribute } from "three";
-import { DoubleSide } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
 import myFont from './shaders/montserrat.json'
@@ -39,9 +38,11 @@ const App = () => {
   }, []);
 
   useFrame(() => {
-    groupRef.current.rotation.y += 0.0025;
-    groupRef.current.rotation.x += 0.0025;
-    groupRef.current.rotation.z += 0.0025;
+    /*     if (!focus) {
+          groupRef.current.rotation.y += 0.0025;
+          groupRef.current.rotation.x += 0.0025;
+          groupRef.current.rotation.z += 0.0025;
+        } */
   })
 
   const [focus, setFocus] = useState(false);
@@ -81,16 +82,16 @@ const Planete = ({ texture, position, focus, setFocus, orbitControls }) => {
   const planet = useRef();
 
   useFrame(({ camera }) => {
+    if (planet.current) {
+      planet.current.rotation.y += 0.0025;
+      planet.current.rotation.x += 0.0025;
+      planet.current.rotation.z += 0.0025;
+    }
     if (planet.current === focus) {
-      if (!focus) {
-        planet.current.rotation.y += 0.0025;
-        planet.current.rotation.x += 0.0025;
-        planet.current.rotation.z += 0.0025;
-      }
-      else {
-        gsap.to(camera.position, { z: 15, duration: 3, ease: 'easeInOut', });
-        camera.lookAt(planet.current.position);
-      }
+      gsap.to(camera.position, { z: 15, duration: 3, ease: 'easeInOut', });
+      camera.lookAt(planet.current.position);
+      /* orbitControls.current.target = planet.current.position;
+      orbitControls.current.update(); */
     }
   })
 
