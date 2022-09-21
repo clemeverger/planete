@@ -1,5 +1,5 @@
 import { Point, useTexture } from '@react-three/drei';
-import React, { useRef, useMemo } from 'react'
+import React, { useRef, useMemo, useState } from 'react'
 import vertexShader from './shaders/vertexShader.glsl'
 import fragmentShader from './shaders/fragmentShader.glsl'
 
@@ -21,6 +21,8 @@ extend({ TextGeometry })
 const font = new FontLoader().parse(myFont);
 
 const App = () => {
+
+  console.log("Qu'en pensez vous SouthVibes ?")
   const c = useTexture('planet-c++.png');
   const css = useTexture('planet-css.png');
   const html = useTexture('planet-html.png');
@@ -43,18 +45,20 @@ const App = () => {
     groupRef.current.rotation.z += 0.0025;
   })
 
+  const [focus, setFocus] = useState(false);
+
   return (
     <>
       <group ref={groupRef}>
-        <Planete texture={c} position={[-6, 3, 0]}></Planete>
-        <Planete texture={css} position={[-2, 3, 0]}></Planete>
-        <Planete texture={html} position={[2, 3, 0]}></Planete>
-        <Planete texture={js} position={[6, 3, 0]}></Planete>
+        <Planete texture={c} position={[-6, 3, 0]} focus={focus} setFocus={setFocus}></Planete>
+        <Planete texture={css} position={[-2, 3, 0]} focus={focus} setFocus={setFocus}></Planete>
+        <Planete texture={html} position={[2, 3, 0]} focus={focus} setFocus={setFocus}></Planete>
+        <Planete texture={js} position={[6, 3, 0]} focus={focus} setFocus={setFocus}></Planete>
 
-        <Planete texture={php} position={[-6, -3, 0]}></Planete>
-        <Planete texture={python} position={[-2, -3, 0]}></Planete>
-        <Planete texture={ruby} position={[2, -3, 0]}></Planete>
-        <Planete texture={vuejs} position={[6, -3, 0]}></Planete>
+        <Planete texture={php} position={[-6, -3, 0]} focus={focus} setFocus={setFocus}></Planete>
+        <Planete texture={python} position={[-2, -3, 0]} focus={focus} setFocus={setFocus}></Planete>
+        <Planete texture={ruby} position={[2, -3, 0]} focus={focus} setFocus={setFocus}></Planete>
+        <Planete texture={vuejs} position={[6, -3, 0]} focus={focus} setFocus={setFocus}></Planete>
         <points>
           <bufferGeometry>
             <bufferAttribute attach={"attributes-position"} {...points} />
@@ -71,18 +75,21 @@ const App = () => {
 
 export default App
 
-const Planete = ({ texture, position }) => {
-
+const Planete = ({ texture, position, focus, setFocus }) => {
   const planet = useRef();
-  const atmosphere = useRef();
-  useFrame(() => {
-    planet.current.rotation.y += 0.0025;
-    planet.current.rotation.x += 0.0025;
-    planet.current.rotation.z += 0.0025;
+  useFrame(({ camera }) => {
+    if (!focus) {
+      planet.current.rotation.y += 0.0025;
+      planet.current.rotation.x += 0.0025;
+      planet.current.rotation.z += 0.0025;
+    }
+    else {
+      camera.position.z -= 0.1;
+    }
   })
   return (
     <>
-      <mesh ref={planet} position={position}>
+      <mesh onClick={() => setFocus(true)} ref={planet} position={position}>
         <sphereGeometry />
         <shaderMaterial
           vertexShader={vertexShader}
@@ -94,7 +101,7 @@ const Planete = ({ texture, position }) => {
           }}
         />
       </mesh>
-      <mesh ref={atmosphere} position={position} scale={[1.2, 1.2, 1.2]}>
+      <mesh position={position} scale={[1.2, 1.2, 1.2]}>
         <sphereGeometry />
         <shaderMaterial
           vertexShader={atmosphereVertex}
