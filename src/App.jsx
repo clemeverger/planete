@@ -1,4 +1,4 @@
-import { OrbitControls, Point, useTexture } from '@react-three/drei';
+import { useTexture } from '@react-three/drei';
 import React, { useRef, useMemo, useState, useEffect } from 'react'
 import vertexShader from './shaders/vertexShader.glsl'
 import fragmentShader from './shaders/fragmentShader.glsl'
@@ -26,12 +26,6 @@ const App = () => {
   const [active, setActive] = useState(false);
   const [textureActive, setTextureActive] = useState(c);
 
-  const orbitControls = useRef();
-  useEffect(() => {
-    if (orbitControls.current) orbitControls.current.minPolarAngle = Math.PI / 2;
-    if (orbitControls.current) orbitControls.current.maxPolarAngle = Math.PI / 2;
-  }, [orbitControls.current])
-
   useEffect(() => {
     if (active.material?.uniforms?.globeTexture?.value) {
       setTextureActive(active.material?.uniforms?.globeTexture?.value);
@@ -53,15 +47,15 @@ const App = () => {
   return (
     <>
       <group ref={group}>
-        <Planete texture={c} position={[-6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-        <Planete texture={css} position={[-2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-        <Planete texture={html} position={[2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-        <Planete texture={js} position={[6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={c} position={[-6, 3, 0]} active={active} setActive={setActive} surface={surface}></Planete>
+        <Planete texture={css} position={[-2, 3, 0]} active={active} setActive={setActive} surface={surface}></Planete>
+        <Planete texture={html} position={[2, 3, 0]} active={active} setActive={setActive} surface={surface}></Planete>
+        <Planete texture={js} position={[6, 3, 0]} active={active} setActive={setActive} surface={surface}></Planete>
 
-        <Planete texture={php} position={[-6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-        <Planete texture={python} position={[-2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-        <Planete texture={ruby} position={[2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-        <Planete texture={vuejs} position={[6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={php} position={[-6, -3, 0]} active={active} setActive={setActive} surface={surface}></Planete>
+        <Planete texture={python} position={[-2, -3, 0]} active={active} setActive={setActive} surface={surface}></Planete>
+        <Planete texture={ruby} position={[2, -3, 0]} active={active} setActive={setActive} surface={surface}></Planete>
+        <Planete texture={vuejs} position={[6, -3, 0]} active={active} setActive={setActive} surface={surface}></Planete>
         <points>
           <bufferGeometry>
             <bufferAttribute attach={"attributes-position"} {...points} />
