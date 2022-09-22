@@ -8,16 +8,9 @@ import atmosphereFragment from './shaders/atmosphereFragment.glsl'
 
 import { AdditiveBlending } from 'three';
 import { BackSide } from 'three';
-import { useFrame, extend } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { BufferAttribute } from "three";
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader'
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry'
-import myFont from './shaders/montserrat.json'
 import gsap from 'gsap';
-
-
-extend({ TextGeometry })
-const font = new FontLoader().parse(myFont);
 
 const App = () => {
 
@@ -45,44 +38,49 @@ const App = () => {
   }, [orbitControls.current])
 
   useEffect(() => {
-    if (active.material?.uniforms?.globeTexture?.value) setTextureActive(active.material?.uniforms?.globeTexture?.value)
+    if (active.material?.uniforms?.globeTexture?.value) {
+      setTextureActive(active.material?.uniforms?.globeTexture?.value);
+      gsap.to(group.current.position, { y: 10, duration: .25, ease: 'easeInOut' });
+    }
+
   }, [active])
 
   const surface = useRef();
-
   const group = useRef();
-  useFrame(({ camera, clock }) => {
-    if(group.current) group.current.rotation.y += 0.0025
+  useFrame(() => {
+    if (group.current) group.current.rotation.y += 0.0025
   })
 
   return (
-    <group ref={group}>
-      {/*       <OrbitControls ref={orbitControls} enableZoom={false} enablePan={false}></OrbitControls> */}
-      <Planete texture={c} position={[-6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-      <Planete texture={css} position={[-2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-      <Planete texture={html} position={[2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-      <Planete texture={js} position={[6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+    <>
+      <group ref={group}>
+        <Planete texture={c} position={[-6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={css} position={[-2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={html} position={[2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={js} position={[6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
 
-      <Planete texture={php} position={[-6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-      <Planete texture={python} position={[-2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-      <Planete texture={ruby} position={[2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
-      <Planete texture={vuejs} position={[6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={php} position={[-6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={python} position={[-2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={ruby} position={[2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <Planete texture={vuejs} position={[6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+        <points>
+          <bufferGeometry>
+            <bufferAttribute attach={"attributes-position"} {...points} />
+          </bufferGeometry>
+          <pointsMaterial
+            size={0.15}
+            color={0xffffff}
+          />
+        </points>
+      </group>
 
       <mesh ref={surface} position={[0, -100, 0]} rotation={[-90 * Math.PI / 180, 0, 0]}>
         <planeGeometry args={[250, 250, 250]} />
         <meshBasicMaterial map={textureActive}></meshBasicMaterial>
       </mesh>
 
-      <points>
-        <bufferGeometry>
-          <bufferAttribute attach={"attributes-position"} {...points} />
-        </bufferGeometry>
-        <pointsMaterial
-          size={0.15}
-          color={0xffffff}
-        />
-      </points>
-    </group>
+
+    </>
   )
 }
 
@@ -103,7 +101,7 @@ const Planete = ({ texture, position, active, setActive, orbitControls, surface 
       if (!zoom) {
         let timeline = gsap.timeline();
         timeline.to(camera.position, { z: 0, duration: .25, ease: 'easeInOut' });
-        timeline.to(surface.current.position, { y: -10, duration: 0 });
+        timeline.to(surface.current.position, { y: -5, duration: 0 });
         timeline.to(camera.position, { z: 150 }, "<");
 
         setZoom(true);
