@@ -50,9 +50,14 @@ const App = () => {
 
   const surface = useRef();
 
+  const group = useRef();
+  useFrame(({ camera, clock }) => {
+    if(group.current) group.current.rotation.y += 0.0025
+  })
+
   return (
-    <>
-      <OrbitControls ref={orbitControls} enableZoom={false} enablePan={false}></OrbitControls>
+    <group ref={group}>
+      {/*       <OrbitControls ref={orbitControls} enableZoom={false} enablePan={false}></OrbitControls> */}
       <Planete texture={c} position={[-6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
       <Planete texture={css} position={[-2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
       <Planete texture={html} position={[2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
@@ -77,7 +82,7 @@ const App = () => {
           color={0xffffff}
         />
       </points>
-    </>
+    </group>
   )
 }
 
@@ -97,13 +102,7 @@ const Planete = ({ texture, position, active, setActive, orbitControls, surface 
     if (planet.current === active) {
       if (!zoom) {
         let timeline = gsap.timeline();
-        timeline.to(camera.position, {
-          z: 0, duration: .25, ease: 'easeInOut', onUpdate: () => {
-            camera.lookAt(...planet.current.position);
-          }, onComplete: () => {
-            camera.lookAt(0, 0, 0);
-          }
-        })
+        timeline.to(camera.position, { z: 0, duration: .25, ease: 'easeInOut' });
         timeline.to(surface.current.position, { y: -10, duration: 0 });
         timeline.to(camera.position, { z: 150 }, "<");
 
