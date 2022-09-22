@@ -63,8 +63,8 @@ const App = () => {
       <Planete texture={ruby} position={[2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
       <Planete texture={vuejs} position={[6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
 
-      <mesh ref={surface} position={[0, -50, 0]} rotation={[-90 * Math.PI / 180, 0, 0]}>
-        <planeGeometry args={[500, 200, 5]} />
+      <mesh ref={surface} position={[0, -100, 0]} rotation={[-90 * Math.PI / 180, 0, 0]}>
+        <planeGeometry args={[250, 250, 250]} />
         <meshBasicMaterial map={textureActive}></meshBasicMaterial>
       </mesh>
 
