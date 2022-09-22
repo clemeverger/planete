@@ -23,11 +23,6 @@ const App = () => {
   const ruby = useTexture('planet-ruby.png');
   const vuejs = useTexture('planet-vuejs.png');
 
-  const points = useMemo(() => {
-    const p = new Array(10000).fill(0).map((v) => (0.5 - Math.random()) * 100);
-    return new BufferAttribute(new Float32Array(p), 3);
-  }, []);
-
   const [active, setActive] = useState(false);
   const [textureActive, setTextureActive] = useState(c);
 
@@ -42,7 +37,6 @@ const App = () => {
       setTextureActive(active.material?.uniforms?.globeTexture?.value);
       gsap.to(group.current.position, { y: 10, duration: .25, ease: 'easeInOut' });
     }
-
   }, [active])
 
   const surface = useRef();
@@ -50,6 +44,11 @@ const App = () => {
   useFrame(() => {
     if (group.current) group.current.rotation.y += 0.0025
   })
+
+  const points = useMemo(() => {
+    const p = new Array(10000).fill(0).map((v) => (0.5 - Math.random()) * 100);
+    return new BufferAttribute(new Float32Array(p), 3);
+  }, []);
 
   return (
     <>
@@ -78,8 +77,6 @@ const App = () => {
         <planeGeometry args={[250, 250, 250]} />
         <meshBasicMaterial map={textureActive}></meshBasicMaterial>
       </mesh>
-
-
     </>
   )
 }
@@ -99,12 +96,12 @@ const Planete = ({ texture, position, active, setActive, orbitControls, surface 
     }
     if (planet.current === active) {
       if (!zoom) {
+        setZoom(true);
+
         let timeline = gsap.timeline();
         timeline.to(camera.position, { z: 0, duration: .25, ease: 'easeInOut' });
-        timeline.to(surface.current.position, { y: -5, duration: 0 });
-        timeline.to(camera.position, { z: 150 }, "<");
-
-        setZoom(true);
+        timeline.to(camera.position, { z: 150, duration: .25, ease: 'easeInOut' });
+        timeline.to(surface.current.position, { y: -5, duration: 0 }, "<");
       }
     }
   })
