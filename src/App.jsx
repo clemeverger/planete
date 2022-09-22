@@ -30,56 +30,63 @@ const App = () => {
   const ruby = useTexture('planet-ruby.png');
   const vuejs = useTexture('planet-vuejs.png');
 
-  const groupRef = useRef();
-
   const points = useMemo(() => {
-    const p = new Array(1000).fill(0).map((v) => (0.5 - Math.random()) * 25);
+    const p = new Array(10000).fill(0).map((v) => (0.5 - Math.random()) * 100);
     return new BufferAttribute(new Float32Array(p), 3);
   }, []);
 
-  useFrame(() => {
-    /*     if (!focus) {
-          groupRef.current.rotation.y += 0.0025;
-          groupRef.current.rotation.x += 0.0025;
-          groupRef.current.rotation.z += 0.0025;
-        } */
-  })
-
-  const [focus, setFocus] = useState(false);
+  const [active, setActive] = useState(false);
+  const [textureActive, setTextureActive] = useState(c);
 
   const orbitControls = useRef();
+  useEffect(() => {
+    if (orbitControls.current) orbitControls.current.minPolarAngle = Math.PI / 2;
+    if (orbitControls.current) orbitControls.current.maxPolarAngle = Math.PI / 2;
+  }, [orbitControls.current])
+
+  useEffect(() => {
+    if (active.material?.uniforms?.globeTexture?.value) setTextureActive(active.material?.uniforms?.globeTexture?.value)
+  }, [active])
+
+  const surface = useRef();
 
   return (
     <>
-      <group ref={groupRef}>
-        <OrbitControls ref={orbitControls} />
-        <Planete texture={c} position={[-6, 3, 0]} focus={focus} setFocus={setFocus} orbitControls={orbitControls}></Planete>
-        <Planete texture={css} position={[-2, 3, 0]} focus={focus} setFocus={setFocus} orbitControls={orbitControls}></Planete>
-        <Planete texture={html} position={[2, 3, 0]} focus={focus} setFocus={setFocus} orbitControls={orbitControls}></Planete>
-        <Planete texture={js} position={[6, 3, 0]} focus={focus} setFocus={setFocus} orbitControls={orbitControls}></Planete>
+      <OrbitControls ref={orbitControls} enableZoom={false} enablePan={false}></OrbitControls>
+      <Planete texture={c} position={[-6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+      <Planete texture={css} position={[-2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+      <Planete texture={html} position={[2, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+      <Planete texture={js} position={[6, 3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
 
-        <Planete texture={php} position={[-6, -3, 0]} focus={focus} setFocus={setFocus} orbitControls={orbitControls}></Planete>
-        <Planete texture={python} position={[-2, -3, 0]} focus={focus} setFocus={setFocus} orbitControls={orbitControls}></Planete>
-        <Planete texture={ruby} position={[2, -3, 0]} focus={focus} setFocus={setFocus} orbitControls={orbitControls}></Planete>
-        <Planete texture={vuejs} position={[6, -3, 0]} focus={focus} setFocus={setFocus} orbitControls={orbitControls}></Planete>
-        <points>
-          <bufferGeometry>
-            <bufferAttribute attach={"attributes-position"} {...points} />
-          </bufferGeometry>
-          <pointsMaterial
-            size={0.15}
-            color={0xffffff}
-          />
-        </points>
-      </group>
+      <Planete texture={php} position={[-6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+      <Planete texture={python} position={[-2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+      <Planete texture={ruby} position={[2, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+      <Planete texture={vuejs} position={[6, -3, 0]} active={active} setActive={setActive} orbitControls={orbitControls} surface={surface}></Planete>
+
+      <mesh ref={surface} position={[0, -50, 0]} rotation={[-90 * Math.PI / 180, 0, 0]}>
+        <planeGeometry args={[500, 200, 5]} />
+        <meshBasicMaterial map={textureActive}></meshBasicMaterial>
+      </mesh>
+
+      <points>
+        <bufferGeometry>
+          <bufferAttribute attach={"attributes-position"} {...points} />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.15}
+          color={0xffffff}
+        />
+      </points>
     </>
   )
 }
 
 export default App
 
-const Planete = ({ texture, position, focus, setFocus, orbitControls }) => {
+const Planete = ({ texture, position, active, setActive, orbitControls, surface }) => {
+
   const planet = useRef();
+  const [zoom, setZoom] = useState(false);
 
   useFrame(({ camera }) => {
     if (planet.current) {
@@ -87,18 +94,27 @@ const Planete = ({ texture, position, focus, setFocus, orbitControls }) => {
       planet.current.rotation.x += 0.0025;
       planet.current.rotation.z += 0.0025;
     }
-    if (planet.current === focus) {
-      gsap.to(camera.position, { z: 15, duration: 3, ease: 'easeInOut', });
-      camera.lookAt(planet.current.position);
-      /* orbitControls.current.target = planet.current.position;
-      orbitControls.current.update(); */
+    if (planet.current === active) {
+      if (!zoom) {
+        let timeline = gsap.timeline();
+        timeline.to(camera.position, {
+          z: 0, duration: .25, ease: 'easeInOut', onUpdate: () => {
+            camera.lookAt(...planet.current.position);
+          }, onComplete: () => {
+            camera.lookAt(0, 0, 0);
+          }
+        })
+        timeline.to(surface.current.position, { y: -10, duration: 0 });
+        timeline.to(camera.position, { z: 150 }, "<");
+
+        setZoom(true);
+      }
     }
   })
 
-  if (focus && planet.current !== focus) return <></>
   return (
     <>
-      <mesh onClick={() => setFocus(planet.current)} ref={planet} position={position}>
+      <mesh onClick={() => setActive(planet.current)} ref={planet} position={position}>
         <sphereGeometry />
         <shaderMaterial
           vertexShader={vertexShader}
